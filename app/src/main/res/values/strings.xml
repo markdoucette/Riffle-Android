@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Riffle</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="add_trip_btn_label">Add Trip</string>
+    <string name="view_trip_btn_label">View Trips</string>
+</resources>
