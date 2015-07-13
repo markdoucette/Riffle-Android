@@ -3,4 +3,6 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="act_main_btn_height">60dp</dimen>
+    <dimen name="act_main_btn_margin_bottom">10dp</dimen>
+    <dimen name="act_padding">20dp</dimen>
 </resources>

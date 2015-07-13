@@ -1,11 +1,12 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-              android:orientation="vertical"
-              android:background="@drawable/fishon"
-                tools:context=".MainActivity"
-              android:weightSum="1">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/fishon"
+    android:padding="@dimen/act_padding"
+    android:orientation="vertical"
+    android:weightSum="1"
+    tools:context=".MainActivity">
 
     <!--android:paddingLeft="@dimen/activity_horizontal_margin"-->
     <!--android:paddingRight="@dimen/activity_horizontal_margin"-->
@@ -13,24 +14,27 @@
     <!--android:paddingBottom="@dimen/activity_vertical_margin"-->
 
     <Space
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_weight="0.60"
-            android:id="@+id/act_main_spacer"/>
+        android:id="@+id/act_main_spacer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_weight="0.60" />
 
     <Button
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/act_main_btn_height"
-            android:text="@string/add_trip_btn_label"
-            android:id="@+id/act_main_btn_add_trip"
-            android:layout_gravity="center_horizontal"
-            />
+        android:id="@+id/act_main_btn_add_trip"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/act_main_btn_height"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="@dimen/act_main_btn_margin_bottom"
+        android:background="@color/homeActivityBtnBlue"
+        android:text="@string/add_trip_btn_label" />
+
     <Button
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/act_main_btn_height"
-            android:text="@string/view_trip_btn_label"
-            android:id="@+id/act_main_btn_view_trip"
-            android:layout_gravity="center_horizontal"
-            />
+        android:id="@+id/act_main_btn_view_trip"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/act_main_btn_height"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="@dimen/act_main_btn_margin_bottom"
+        android:background="@color/homeActivityBtnBlue"
+        android:text="@string/view_trip_btn_label" />
 </LinearLayout>
