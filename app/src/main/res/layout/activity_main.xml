@@ -18,7 +18,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_weight="0.60" />
+        android:layout_weight="0.70" />
 
     <Button
         android:id="@+id/act_main_btn_add_trip"
