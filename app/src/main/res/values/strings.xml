@@ -14,4 +14,5 @@
     <string name="act_add_tv_location">Location</string>
     <string name="act_add_tv_notes">Notes</string>
     <string name="act_add_tv_coords">----</string>
+    <string name="saveTask">Save</string>
 </resources>

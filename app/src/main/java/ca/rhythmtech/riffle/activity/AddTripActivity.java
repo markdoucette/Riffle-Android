@@ -1,17 +1,18 @@
-package ca.rhythmtech.riffle;
+package ca.rhythmtech.riffle.activity;
 
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import ca.rhythmtech.riffle.R;
 
 
-public class MainActivity extends Activity {
+public class AddTripActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_add_trip);
 
         // remove the icon from the actionbar
         getActionBar().setDisplayShowHomeEnabled(false);
@@ -20,7 +21,7 @@ public class MainActivity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.menu_add_trip, menu);
         return true;
     }
 
