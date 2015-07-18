@@ -36,6 +36,9 @@ public class MainActivity extends Activity implements View.OnClickListener{
         btnViewTrips = (Button) findViewById(R.id.act_main_btn_view_trip);
         btnViewTrips.setOnClickListener(this);
 
+
+
+
     }
 
     @Override
