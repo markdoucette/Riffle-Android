@@ -3,6 +3,7 @@ package ca.rhythmtech.riffle.activity;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -11,6 +12,9 @@ import android.view.View;
 import android.widget.*;
 import ca.rhythmtech.riffle.R;
 import ca.rhythmtech.riffle.model.Trip;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 import com.parse.ParseGeoPoint;
 
 import java.text.ParseException;
@@ -20,19 +24,23 @@ import java.util.Date;
 import java.util.Locale;
 
 
-public class AddTripActivity extends Activity implements View.OnClickListener {
+public class AddTripActivity extends Activity implements View.OnClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     public static final String ERROR_NAME = "Please enter a title for the Trip";
     public static final String DATE_FORMAT = "yyyy/MM/dd";
+    public static final String TAG = "AddTripActivity";
     private EditText etName;
     private Button btnDate;
     private EditText etWeather;
     private EditText etWaterTemp;
     private EditText etLevel;
-    private TextView tvLocation;
+    private ImageButton ebLocation;
+    private TextView tvLocationCoords;
     private EditText etNotes;
 
     private DatePickerDialog datePickerDialog; // dialog for choosing a date
-    SimpleDateFormat dateFormat;
+    private SimpleDateFormat dateFormat;
+    private GoogleApiClient mGoogleApiClient;
+    private Location lastLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +50,8 @@ public class AddTripActivity extends Activity implements View.OnClickListener {
         // remove the icon from the actionbar
         getActionBar().setDisplayShowHomeEnabled(false);
 
+        buildGoogleApiClient();
+
         etName = (EditText) findViewById(R.id.act_add_et_name);
         btnDate = (Button) findViewById(R.id.act_add_btn_date);
         btnDate.setOnClickListener(this);
@@ -50,7 +60,9 @@ public class AddTripActivity extends Activity implements View.OnClickListener {
         etWeather = (EditText) findViewById(R.id.act_add_et_weather);
         etWaterTemp = (EditText) findViewById(R.id.act_add_et_watertemp);
         etLevel = (EditText) findViewById(R.id.act_add_et_level);
-        tvLocation = (TextView) findViewById(R.id.act_add_tv_location);
+        ebLocation = (ImageButton) findViewById(R.id.act_add_imgbtn_mylocation);
+        ebLocation.setOnClickListener(this);
+        tvLocationCoords = (TextView) findViewById(R.id.act_add_tv_coords);
         etNotes = (EditText) findViewById(R.id.act_add_et_notes);
 
         // initialize the date button text to today's date for new Trip
@@ -104,6 +116,17 @@ public class AddTripActivity extends Activity implements View.OnClickListener {
         Intent intent = new Intent(AddTripActivity.this, MainActivity.class);
         startActivity(intent);
         finish();
+    }
+
+    /*
+    Using the Google Api's for Location Services
+     */
+    protected synchronized void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
     }
 
     @Override
@@ -170,9 +193,34 @@ public class AddTripActivity extends Activity implements View.OnClickListener {
             case R.id.act_add_btn_date:
                 datePickerDialog.show();
                 break;
+            case R.id.act_add_imgbtn_mylocation:
+                Log.d(TAG, "Location button pressed.");
+                Log.d(TAG, lastLocation.toString());
+                if (lastLocation != null) {
+                    Log.d(TAG, String.format("Latitude: %f, Longitude: %f",
+                            lastLocation.getLatitude(), lastLocation.getLongitude()));
+                    tvLocationCoords.setText(String.format("Latitude: %f, Longitude: %f",
+                            lastLocation.getLatitude(), lastLocation.getLongitude()));
+                }
+                break;
             default:
                 break;
         }
+
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        lastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
 
     }
 }
