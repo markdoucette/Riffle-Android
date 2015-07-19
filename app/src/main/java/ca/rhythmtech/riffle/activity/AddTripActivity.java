@@ -9,9 +9,13 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.*;
-import ca.rhythmtech.riffle.R;
-import ca.rhythmtech.riffle.model.Trip;
+import android.widget.Button;
+import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
@@ -22,6 +26,9 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+
+import ca.rhythmtech.riffle.R;
+import ca.rhythmtech.riffle.model.Trip;
 
 
 public class AddTripActivity extends Activity implements View.OnClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
@@ -130,6 +137,20 @@ public class AddTripActivity extends Activity implements View.OnClickListener, G
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    protected void onStop() {
+        if (mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.disconnect();
+        }
+        super.onStop();
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_add_trip, menu);
@@ -148,8 +169,7 @@ public class AddTripActivity extends Activity implements View.OnClickListener, G
                     Date date = new Date(); // default date to start
                     try { // capture the date string from the button
                         date = dateFormat.parse(btnDate.getText().toString());
-                    }
-                    catch (ParseException e) {
+                    } catch (ParseException e) {
                         Log.d("AddTripActivity", String.format("Error parsing date: %s", e.getMessage()));
                     }
                     Calendar cDate = Calendar.getInstance();
@@ -165,10 +185,11 @@ public class AddTripActivity extends Activity implements View.OnClickListener, G
                         trip.setLevelMeters(Double.valueOf(etLevel.getText().toString()));
                     }
 
-                    // test location
-                    // TODO: Remove after location is implemented
-                    ParseGeoPoint location = new ParseGeoPoint(49.290186, -123.137372);
-                    trip.setLocation(location);
+                    if (lastLocation != null) {
+                        ParseGeoPoint location = new ParseGeoPoint(lastLocation.getLatitude(),
+                                lastLocation.getLongitude());
+                        trip.setLocation(location);
+                    }
 
                     if (!etNotes.getText().toString().equals("")) { // add notes if set
                         trip.setNotes(etNotes.getText().toString());
@@ -194,33 +215,32 @@ public class AddTripActivity extends Activity implements View.OnClickListener, G
                 datePickerDialog.show();
                 break;
             case R.id.act_add_imgbtn_mylocation:
-                Log.d(TAG, "Location button pressed.");
-                Log.d(TAG, lastLocation.toString());
+                // Get the Latitude & Longitude from Location Services
                 if (lastLocation != null) {
                     Log.d(TAG, String.format("Latitude: %f, Longitude: %f",
                             lastLocation.getLatitude(), lastLocation.getLongitude()));
-                    tvLocationCoords.setText(String.format("Latitude: %f, Longitude: %f",
+                    tvLocationCoords.setText(String.format("Lat: %f, Long: %f",
                             lastLocation.getLatitude(), lastLocation.getLongitude()));
                 }
                 break;
             default:
                 break;
         }
-
     }
 
     @Override
     public void onConnected(Bundle bundle) {
+        // retrieve the last location delivered by Location Services
         lastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
     }
 
     @Override
     public void onConnectionSuspended(int i) {
-
     }
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
+        Log.d(TAG, "Location Connection failed: " + connectionResult.toString());
 
     }
 }
