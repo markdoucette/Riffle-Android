@@ -1,8 +1,10 @@
 package ca.rhythmtech.riffle.activity;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -11,6 +13,9 @@ import android.view.View;
 import android.widget.*;
 import ca.rhythmtech.riffle.R;
 import ca.rhythmtech.riffle.model.Trip;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 import com.parse.ParseGeoPoint;
 
 import java.text.ParseException;
@@ -20,19 +25,23 @@ import java.util.Date;
 import java.util.Locale;
 
 
-public class AddTripActivity extends Activity implements View.OnClickListener {
+public class AddTripActivity extends Activity implements View.OnClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     public static final String ERROR_NAME = "Please enter a title for the Trip";
     public static final String DATE_FORMAT = "yyyy/MM/dd";
+    public static final String TAG = "AddTripActivity";
     private EditText etName;
     private Button btnDate;
     private EditText etWeather;
     private EditText etWaterTemp;
     private EditText etLevel;
-    private TextView tvLocation;
+    private ImageButton ebLocation;
+    private TextView tvLocationCoords;
     private EditText etNotes;
 
     private DatePickerDialog datePickerDialog; // dialog for choosing a date
-    SimpleDateFormat dateFormat;
+    private SimpleDateFormat dateFormat;
+    private GoogleApiClient mGoogleApiClient;
+    private Location lastLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,23 +49,35 @@ public class AddTripActivity extends Activity implements View.OnClickListener {
         setContentView(R.layout.activity_add_trip);
 
         // remove the icon from the actionbar
-        getActionBar().setDisplayShowHomeEnabled(false);
+        ActionBar actionBar = getActionBar();
 
+        if (actionBar != null) {
+            getActionBar().setDisplayShowHomeEnabled(false);
+        }
+
+        buildGoogleApiClient();
+
+
+        initializeViews();
+
+        setChosenDate();
+
+    }
+
+    // Round up all of our required views
+    private void initializeViews() {
         etName = (EditText) findViewById(R.id.act_add_et_name);
         btnDate = (Button) findViewById(R.id.act_add_btn_date);
         btnDate.setOnClickListener(this);
-
-
         etWeather = (EditText) findViewById(R.id.act_add_et_weather);
         etWaterTemp = (EditText) findViewById(R.id.act_add_et_watertemp);
         etLevel = (EditText) findViewById(R.id.act_add_et_level);
-        tvLocation = (TextView) findViewById(R.id.act_add_tv_location);
+        ebLocation = (ImageButton) findViewById(R.id.act_add_imgbtn_mylocation);
+        ebLocation.setOnClickListener(this);
+        tvLocationCoords = (TextView) findViewById(R.id.act_add_tv_coords);
         etNotes = (EditText) findViewById(R.id.act_add_et_notes);
-
         // initialize the date button text to today's date for new Trip
         btnDate.setText(getTodaysDate());
-        setChosenDate();
-
     }
 
     private void setChosenDate() {
@@ -106,6 +127,31 @@ public class AddTripActivity extends Activity implements View.OnClickListener {
         finish();
     }
 
+    /*
+    Using the Google Api's for Location Services
+     */
+    protected synchronized void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    protected void onStop() {
+        if (mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.disconnect();
+        }
+        super.onStop();
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -125,8 +171,7 @@ public class AddTripActivity extends Activity implements View.OnClickListener {
                     Date date = new Date(); // default date to start
                     try { // capture the date string from the button
                         date = dateFormat.parse(btnDate.getText().toString());
-                    }
-                    catch (ParseException e) {
+                    } catch (ParseException e) {
                         Log.d("AddTripActivity", String.format("Error parsing date: %s", e.getMessage()));
                     }
                     Calendar cDate = Calendar.getInstance();
@@ -142,10 +187,11 @@ public class AddTripActivity extends Activity implements View.OnClickListener {
                         trip.setLevelMeters(Double.valueOf(etLevel.getText().toString()));
                     }
 
-                    // test location
-                    // TODO: Remove after location is implemented
-                    ParseGeoPoint location = new ParseGeoPoint(49.290186, -123.137372);
-                    trip.setLocation(location);
+                    if (lastLocation != null) {
+                        ParseGeoPoint location = new ParseGeoPoint(lastLocation.getLatitude(),
+                                lastLocation.getLongitude());
+                        trip.setLocation(location);
+                    }
 
                     if (!etNotes.getText().toString().equals("")) { // add notes if set
                         trip.setNotes(etNotes.getText().toString());
@@ -170,9 +216,33 @@ public class AddTripActivity extends Activity implements View.OnClickListener {
             case R.id.act_add_btn_date:
                 datePickerDialog.show();
                 break;
+            case R.id.act_add_imgbtn_mylocation:
+                // Get the Latitude & Longitude from Location Services
+                if (lastLocation != null) {
+                    Log.d(TAG, String.format("Latitude: %f, Longitude: %f",
+                            lastLocation.getLatitude(), lastLocation.getLongitude()));
+                    tvLocationCoords.setText(String.format("Lat: %f, Long: %f",
+                            lastLocation.getLatitude(), lastLocation.getLongitude()));
+                }
+                break;
             default:
                 break;
         }
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        // retrieve the last location delivered by Location Services
+        lastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        Log.d(TAG, "Location Connection failed: " + connectionResult.toString());
 
     }
 }
