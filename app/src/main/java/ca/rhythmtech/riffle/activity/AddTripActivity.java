@@ -1,5 +1,6 @@
 package ca.rhythmtech.riffle.activity;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.content.Intent;
@@ -9,13 +10,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.DatePicker;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.TextView;
-import android.widget.Toast;
-
+import android.widget.*;
+import ca.rhythmtech.riffle.R;
+import ca.rhythmtech.riffle.model.Trip;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
@@ -26,9 +23,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-
-import ca.rhythmtech.riffle.R;
-import ca.rhythmtech.riffle.model.Trip;
 
 
 public class AddTripActivity extends Activity implements View.OnClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
@@ -55,15 +49,26 @@ public class AddTripActivity extends Activity implements View.OnClickListener, G
         setContentView(R.layout.activity_add_trip);
 
         // remove the icon from the actionbar
-        getActionBar().setDisplayShowHomeEnabled(false);
+        ActionBar actionBar = getActionBar();
+
+        if (actionBar != null) {
+            getActionBar().setDisplayShowHomeEnabled(false);
+        }
 
         buildGoogleApiClient();
 
+
+        initializeViews();
+
+        setChosenDate();
+
+    }
+
+    // Round up all of our required views
+    private void initializeViews() {
         etName = (EditText) findViewById(R.id.act_add_et_name);
         btnDate = (Button) findViewById(R.id.act_add_btn_date);
         btnDate.setOnClickListener(this);
-
-
         etWeather = (EditText) findViewById(R.id.act_add_et_weather);
         etWaterTemp = (EditText) findViewById(R.id.act_add_et_watertemp);
         etLevel = (EditText) findViewById(R.id.act_add_et_level);
@@ -71,11 +76,8 @@ public class AddTripActivity extends Activity implements View.OnClickListener, G
         ebLocation.setOnClickListener(this);
         tvLocationCoords = (TextView) findViewById(R.id.act_add_tv_coords);
         etNotes = (EditText) findViewById(R.id.act_add_et_notes);
-
         // initialize the date button text to today's date for new Trip
         btnDate.setText(getTodaysDate());
-        setChosenDate();
-
     }
 
     private void setChosenDate() {
