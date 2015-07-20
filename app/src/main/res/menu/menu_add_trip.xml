@@ -3,7 +3,7 @@
       xmlns:tools="http://schemas.android.com/tools"
       tools:context="ca.rhythmtech.riffle.activity.AddTripActivity">
           <item
-            android:id="@+id/saveTask"
+            android:id="@+id/menu_opt_save_trip"
             android:orderInCategory="80"
             android:icon="@drawable/ic_save_white_24dp"
             android:title="@string/saveTask"

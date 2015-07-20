@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <!--<ImageView-->
+            <!--android:id="@+id/imageView1"-->
+            <!--android:layout_width="48dp"-->
+            <!--android:layout_height="48dp"-->
+            <!--android:layout_alignParentLeft="true"-->
+            <!--android:layout_alignParentTop="true"-->
+            <!--android:layout_marginLeft="16dp"-->
+            <!--android:layout_marginTop="15dp"-->
+            <!--/>-->
+
+    <TextView
+            android:id="@+id/act_display_tv_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/holo_blue_light"
+            android:paddingLeft="@dimen/dim_listview_spacer_padding"
+            android:textSize="@dimen/dim_lv_large_text"
+            android:text="Label"
+            />
+
+    <TextView
+            android:id="@+id/act_displaytrips_tv_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/act_display_tv_label"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/dim_lv_small_text"
+            android:paddingLeft="5dp"
+            android:text="@string/act_displaytrips_tv_date"
+            />
+</RelativeLayout>

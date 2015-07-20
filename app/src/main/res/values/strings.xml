@@ -13,7 +13,9 @@
     <string name="act_add_tv_watertemp">Water Temperature (deg C)</string>
     <string name="act_add_tv_location">Location</string>
     <string name="act_add_tv_notes">Notes</string>
-    <string name="act_add_tv_coords">----</string>
+    <string name="act_add_tv_coords"/>
     <string name="saveTask">Save</string>
     <string name="act_add_tv_level">Water Level (m)</string>
+    <string name="title_activity_view_trips">Trips</string>
+    <string name="act_displaytrips_tv_date"/>
 </resources>

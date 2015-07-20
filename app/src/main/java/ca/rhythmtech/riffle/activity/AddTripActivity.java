@@ -1,6 +1,5 @@
 package ca.rhythmtech.riffle.activity;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.content.Intent;
@@ -13,6 +12,7 @@ import android.view.View;
 import android.widget.*;
 import ca.rhythmtech.riffle.R;
 import ca.rhythmtech.riffle.model.Trip;
+import ca.rhythmtech.riffle.util.ActivityHelper;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
@@ -49,19 +49,15 @@ public class AddTripActivity extends Activity implements View.OnClickListener, G
         setContentView(R.layout.activity_add_trip);
 
         // remove the icon from the actionbar
-        ActionBar actionBar = getActionBar();
+        ActivityHelper.setActionBarNoIcon(AddTripActivity.this);
 
-        if (actionBar != null) {
-            getActionBar().setDisplayShowHomeEnabled(false);
-        }
-
+        // Set up the Google Play Services API for the Location
         buildGoogleApiClient();
-
 
         initializeViews();
 
+        // Set the date
         setChosenDate();
-
     }
 
     // Round up all of our required views
@@ -80,8 +76,10 @@ public class AddTripActivity extends Activity implements View.OnClickListener, G
         btnDate.setText(getTodaysDate());
     }
 
+    /*
+    Set the date chosen by the user in the DatePickerDialog using the default format
+     */
     private void setChosenDate() {
-
         Calendar calDate = Calendar.getInstance();
 
         datePickerDialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
@@ -97,8 +95,8 @@ public class AddTripActivity extends Activity implements View.OnClickListener, G
         );
     }
 
-    // Helper methods
-    // validate some of the mandatory data: Name
+    // validate some of the mandatory data: Name, Date (Date is required by proxy since it is
+    // first automatically set to the current date until the user changes it
     private boolean validateData() {
         String msg;
         if ("".equals(etName.getText().toString().trim())) {
@@ -162,7 +160,7 @@ public class AddTripActivity extends Activity implements View.OnClickListener, G
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.saveTask:
+            case R.id.menu_opt_save_trip:
                 if (validateData()) {
                     Trip trip = new Trip();
                     trip.setName(etName.getText().toString());
