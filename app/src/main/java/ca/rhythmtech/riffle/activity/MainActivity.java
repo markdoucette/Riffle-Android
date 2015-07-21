@@ -9,6 +9,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import ca.rhythmtech.riffle.R;
+import ca.rhythmtech.riffle.util.ActivityHelper;
 
 /**
  * Main entry point for the application Riffle
@@ -27,18 +28,18 @@ public class MainActivity extends Activity implements View.OnClickListener{
         setContentView(R.layout.activity_main);
 
         // remove the icon from the actionbar
-        getActionBar().setDisplayShowHomeEnabled(false);
-
+        ActivityHelper.setActionBarNoIcon(MainActivity.this);
 
         // set the views
+        initializeViews();
+    }
+
+    // Round up all of our required views
+    private void initializeViews() {
         btnAddTrip = (Button) findViewById(R.id.act_main_btn_add_trip);
         btnAddTrip.setOnClickListener(this);
         btnViewTrips = (Button) findViewById(R.id.act_main_btn_view_trip);
         btnViewTrips.setOnClickListener(this);
-
-
-
-
     }
 
     @Override
@@ -72,7 +73,9 @@ public class MainActivity extends Activity implements View.OnClickListener{
                 startActivity(intent);
                 break;
             case R.id.act_main_btn_view_trip:
-
+                Log.d(TAG, "View Trips button pressed");
+                intent = new Intent(MainActivity.this, DisplayTripsActivity.class);
+                startActivity(intent);
                 break;
             default:
                 Log.d(TAG, "Onclick result in default case");

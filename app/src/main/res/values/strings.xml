@@ -4,7 +4,7 @@
     <string name="action_settings">Settings</string>
     <string name="add_trip_btn_label">Add Trip</string>
     <string name="view_trip_btn_label">View Trips</string>
-    <string name="title_activity_add_trip">Add Trip</string>
+    <string name="title_activity_add_trip">Trip</string>
 
     <string name="hello_world">Hello world!</string>
     <string name="act_add_tv_name">Name</string>
@@ -13,7 +13,9 @@
     <string name="act_add_tv_watertemp">Water Temperature (deg C)</string>
     <string name="act_add_tv_location">Location</string>
     <string name="act_add_tv_notes">Notes</string>
-    <string name="act_add_tv_coords">----</string>
+    <string name="act_add_tv_coords"/>
     <string name="saveTask">Save</string>
     <string name="act_add_tv_level">Water Level (m)</string>
+    <string name="title_activity_view_trips">Trips</string>
+    <string name="act_displaytrips_tv_date"/>
 </resources>

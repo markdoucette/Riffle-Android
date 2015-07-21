@@ -4,6 +4,7 @@
     <style name="AppTheme" parent="android:Theme.Holo.Light">
         <!-- Customize your theme here. -->
         <item name="android:actionBarStyle">@style/actionBarBlue</item>
+        <item name="android:textColorPrimary">@color/primary_text_white</item>
     </style>
 
     <style name="actionBarBlue" parent="android:Widget.Holo.ActionBar">

@@ -3,7 +3,14 @@
 
     <style name="AppTheme" parent="android:Theme.Material">
         <!-- Customize your theme here. -->
-        <item name="android:actionBarStyle">@style/actionBarBlue</item>
-        <item name="android:statusBarColor">@color/statusBarBlue</item>
+        <item name="android:colorPrimary">@color/actionBarBlue</item>
+        <item name="android:colorPrimaryDark">@color/statusBarBlue</item>
+        <item name="android:colorButtonNormal">@color/homeActivityBtnBlue</item>
+        <item name="android:colorAccent">@color/accentColor</item>
+        <item name="android:buttonStyle">@style/buttonTheme</item>
+    </style>
+
+    <style name="buttonTheme" parent="android:Widget.Material.Button">
+        <item name="android:background">@drawable/button_effect</item>
     </style>
 </resources>

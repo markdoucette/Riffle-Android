@@ -2,4 +2,6 @@
 <resources>
     <color name="actionBarBlue">#03A9F4</color>
     <color name="homeActivityBtnBlue">#03A9F4</color>
+    <color name="accentColor">#80D8FF</color>
+    <color name="primary_text_white">#FFFFFF</color>
 </resources>
