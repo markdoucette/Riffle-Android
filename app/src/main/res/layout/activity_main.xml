@@ -26,7 +26,6 @@
         android:layout_height="@dimen/act_main_btn_height"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="@dimen/act_main_btn_margin_bottom"
-        android:background="@color/homeActivityBtnBlue"
         android:text="@string/add_trip_btn_label" />
 
     <Button
@@ -35,6 +34,5 @@
         android:layout_height="@dimen/act_main_btn_height"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="@dimen/act_main_btn_margin_bottom"
-        android:background="@color/homeActivityBtnBlue"
         android:text="@string/view_trip_btn_label" />
 </LinearLayout>

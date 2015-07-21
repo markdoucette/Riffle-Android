@@ -1,12 +1,15 @@
 package ca.rhythmtech.riffle.activity;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 import ca.rhythmtech.riffle.R;
 import ca.rhythmtech.riffle.adapter.TripsViewAdapter;
 import ca.rhythmtech.riffle.model.Trip;
@@ -15,6 +18,14 @@ import com.parse.ParseQuery;
 import com.parse.ParseQueryAdapter;
 
 public class DisplayTripsActivity extends Activity implements AdapterView.OnItemClickListener {
+    public static final String TRIP_ACTION_VIEW = "view";
+    public static final String TRIP_ACTION_EDIT = "edit";
+    public static final String TAG = "DisplayTripActivity";
+    public static final String TRIP_STRING = "Trip";
+    public static final String TRIP_NOT_FOUND_ERROR = "Error retrieving selected trip";
+    public static final String TRIP_ID_KEY = "tripId";
+    public static final String TRIP_ACTION_KEY = "tripAction";
+
     private TripsViewAdapter adapter;
     private ListView lvTrips;
 
@@ -32,8 +43,7 @@ public class DisplayTripsActivity extends Activity implements AdapterView.OnItem
         ParseQueryAdapter.QueryFactory<Trip> qf = new ParseQueryAdapter.QueryFactory<Trip>() {
             @Override
             public ParseQuery<Trip> create() {
-                ParseQuery<Trip> query = ParseQuery.getQuery("Trip");
-                return query; // Api limits to 100 items to a getall query
+                return ParseQuery.getQuery(TRIP_STRING); // Api limits to 100 items to a getall query
             }
         };
 
@@ -46,6 +56,7 @@ public class DisplayTripsActivity extends Activity implements AdapterView.OnItem
     // Round up all of our required views
     private void initializeViews() {
         lvTrips = (ListView) findViewById(R.id.act_display_lv_trips);
+        ActivityHelper.setActionBarTitle(DisplayTripsActivity.this, "");
     }
 
     @Override
@@ -72,6 +83,17 @@ public class DisplayTripsActivity extends Activity implements AdapterView.OnItem
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
+        // retrieve the Trip corresponding to the position clicked
+        Trip trip = adapter.getItem(position);
+        Intent intent = new Intent(DisplayTripsActivity.this, AddTripActivity.class);
+        if (trip != null) {
+            intent.putExtra(TRIP_ID_KEY, trip.getObjectId());
+            intent.putExtra(TRIP_ACTION_KEY, TRIP_ACTION_VIEW);
+        }
+        else {
+            Log.e(TAG, TRIP_NOT_FOUND_ERROR);
+            Toast.makeText(DisplayTripsActivity.this, TRIP_NOT_FOUND_ERROR, Toast.LENGTH_SHORT).show();
+        }
+        startActivity(intent);
     }
 }

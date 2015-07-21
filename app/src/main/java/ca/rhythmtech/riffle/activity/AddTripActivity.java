@@ -17,6 +17,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 import com.parse.ParseGeoPoint;
+import com.parse.ParseQuery;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -36,12 +37,15 @@ public class AddTripActivity extends Activity implements View.OnClickListener, G
     private EditText etLevel;
     private ImageButton ebLocation;
     private TextView tvLocationCoords;
+    private View miSaveButton;
     private EditText etNotes;
-
     private DatePickerDialog datePickerDialog; // dialog for choosing a date
     private SimpleDateFormat dateFormat;
     private GoogleApiClient mGoogleApiClient;
+
     private Location lastLocation;
+    private boolean isEditing = false; // user is editing the Trip ?
+    private boolean isViewing = false; // user is just viewing the Trip ?
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,11 +78,94 @@ public class AddTripActivity extends Activity implements View.OnClickListener, G
         etNotes = (EditText) findViewById(R.id.act_add_et_notes);
         // initialize the date button text to today's date for new Trip
         btnDate.setText(getTodaysDate());
+        miSaveButton = findViewById(R.id.menu_opt_save_trip);
+
+        // get rid of the title
+        ActivityHelper.setActionBarTitle(AddTripActivity.this, "");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Get the intent and check where we came from
+        Intent intent = getIntent();
+        if (intent != null) {
+            String action = intent.getStringExtra(DisplayTripsActivity.TRIP_ACTION_KEY);
+            String tripId = intent.getStringExtra(DisplayTripsActivity.TRIP_ID_KEY);
+            if (action != null && !action.equals("")) {
+                Trip trip = new Trip();
+                ParseQuery<Trip> query = ParseQuery.getQuery(Trip.class);
+                try {
+                    trip = query.get(tripId);
+                }
+                catch (com.parse.ParseException e) {
+                    Log.e(TAG, DisplayTripsActivity.TRIP_NOT_FOUND_ERROR);
+                }
+                populateTripsField(trip);
+                switch (action) {
+                    case DisplayTripsActivity.TRIP_ACTION_VIEW:
+                        isViewing = true; // we are in view only mode
+                        Log.d(TAG, "In viewing mode");
+                        populateTripsField(trip);
+                        setViewOnlyMode();
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
+
+    private void setViewOnlyMode() {
+        // disable the editing
+        ActivityHelper.setReadOnly(etName, true);
+        ActivityHelper.setReadOnly(btnDate, true);
+        ActivityHelper.setReadOnly(etWeather, true);
+        ActivityHelper.setReadOnly(etWaterTemp, true);
+        ActivityHelper.setReadOnly(etLevel, true);
+        ActivityHelper.setReadOnly(tvLocationCoords, true);
+        ActivityHelper.setReadOnly(etNotes, true);
+
+        // address the save button
+        if (miSaveButton == null) {
+            Log.d(TAG, "Save Button is null");
+        }
+        else {
+
+            miSaveButton.setEnabled(false);
+        }
+
+        invalidateOptionsMenu();
+    }
+
+
+    // Set the fields with the retrieved trip
+    private void populateTripsField(Trip trip) {
+        if (trip != null) {
+            etName.setText(trip.getName());
+            Calendar cal = trip.getDate();
+            btnDate.setText(dateFormat.format(cal.getTime()));
+            if (trip.getWeather() != null) {
+                etWeather.setText(trip.getWeather());
+            }
+            etWaterTemp.setText(String.valueOf(trip.getWaterTempDegC()));
+            etLevel.setText(String.valueOf(trip.getLevelMeters()));
+
+            if (trip.getLocation() != null) {
+                ParseGeoPoint loc = trip.getLocation();
+                tvLocationCoords.setText(String.format("Lat: %f, Long: %f",
+                        loc.getLatitude(), loc.getLongitude()));
+            }
+
+            if (trip.getNotes() != null) {
+                etNotes.setText(trip.getNotes());
+            }
+        }
     }
 
     /*
-    Set the date chosen by the user in the DatePickerDialog using the default format
-     */
+        Set the date chosen by the user in the DatePickerDialog using the default format
+         */
     private void setChosenDate() {
         Calendar calDate = Calendar.getInstance();
 
@@ -158,6 +245,14 @@ public class AddTripActivity extends Activity implements View.OnClickListener, G
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        if (isViewing) {
+            menu.getItem(0).setEnabled(false).setVisible(false);
+        }
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_opt_save_trip:
@@ -169,8 +264,9 @@ public class AddTripActivity extends Activity implements View.OnClickListener, G
                     Date date = new Date(); // default date to start
                     try { // capture the date string from the button
                         date = dateFormat.parse(btnDate.getText().toString());
-                    } catch (ParseException e) {
-                        Log.d("AddTripActivity", String.format("Error parsing date: %s", e.getMessage()));
+                    }
+                    catch (ParseException e) {
+                        Log.d(TAG, String.format("Error parsing date: %s", e.getMessage()));
                     }
                     Calendar cDate = Calendar.getInstance();
                     cDate.setTime(date);

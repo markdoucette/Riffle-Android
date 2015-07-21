@@ -31,7 +31,10 @@
         </activity>
         <activity
             android:name=".activity.DisplayTripsActivity"
-            android:label="@string/title_activity_view_trips" >
+            android:label="@string/title_activity_view_trips"
+            android:parentActivityName=".activity.MainActivity"
+            android:screenOrientation="portrait"
+                >
         </activity>
     </application>
 

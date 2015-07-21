@@ -4,7 +4,7 @@
     <string name="action_settings">Settings</string>
     <string name="add_trip_btn_label">Add Trip</string>
     <string name="view_trip_btn_label">View Trips</string>
-    <string name="title_activity_add_trip">Add Trip</string>
+    <string name="title_activity_add_trip">Trip</string>
 
     <string name="hello_world">Hello world!</string>
     <string name="act_add_tv_name">Name</string>

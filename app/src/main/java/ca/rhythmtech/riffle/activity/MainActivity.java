@@ -9,6 +9,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import ca.rhythmtech.riffle.R;
+import ca.rhythmtech.riffle.util.ActivityHelper;
 
 /**
  * Main entry point for the application Riffle
@@ -27,11 +28,10 @@ public class MainActivity extends Activity implements View.OnClickListener{
         setContentView(R.layout.activity_main);
 
         // remove the icon from the actionbar
-        getActionBar().setDisplayShowHomeEnabled(false);
+        ActivityHelper.setActionBarNoIcon(MainActivity.this);
 
         // set the views
         initializeViews();
-
     }
 
     // Round up all of our required views
