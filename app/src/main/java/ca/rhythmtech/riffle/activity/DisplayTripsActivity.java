@@ -19,7 +19,6 @@ import com.parse.ParseQueryAdapter;
 
 public class DisplayTripsActivity extends Activity implements AdapterView.OnItemClickListener {
     public static final String TRIP_ACTION_VIEW = "view";
-    public static final String TRIP_ACTION_EDIT = "edit";
     public static final String TAG = "DisplayTripActivity";
     public static final String TRIP_STRING = "Trip";
     public static final String TRIP_NOT_FOUND_ERROR = "Error retrieving selected trip";

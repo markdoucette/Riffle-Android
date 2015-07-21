@@ -18,4 +18,6 @@
     <string name="act_add_tv_level">Water Level (m)</string>
     <string name="title_activity_view_trips">Trips</string>
     <string name="act_displaytrips_tv_date"/>
+    <string name="shareTrip">Share</string>
+    <string name="editTrip">Edit Trip</string>
 </resources>

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -30,6 +31,9 @@ public class AddTripActivity extends Activity implements View.OnClickListener, G
     public static final String ERROR_NAME = "Please enter a title for the Trip";
     public static final String DATE_FORMAT = "yyyy/MM/dd";
     public static final String TAG = "AddTripActivity";
+    public static final String TRIP_ACTION_EDIT = "edit";
+    private static final int SHARE_MENU_ID = Menu.FIRST + 1;
+    private static final int EDIT_MENU_ID = Menu.FIRST + 2;
     private EditText etName;
     private Button btnDate;
     private EditText etWeather;
@@ -44,6 +48,7 @@ public class AddTripActivity extends Activity implements View.OnClickListener, G
     private GoogleApiClient mGoogleApiClient;
 
     private Location lastLocation;
+    private Trip trip;
     private boolean isEditing = false; // user is editing the Trip ?
     private boolean isViewing = false; // user is just viewing the Trip ?
 
@@ -102,10 +107,10 @@ public class AddTripActivity extends Activity implements View.OnClickListener, G
                     Log.e(TAG, DisplayTripsActivity.TRIP_NOT_FOUND_ERROR);
                 }
                 populateTripsField(trip);
+                this.trip = trip; // save our trip for later use
                 switch (action) {
                     case DisplayTripsActivity.TRIP_ACTION_VIEW:
                         isViewing = true; // we are in view only mode
-                        Log.d(TAG, "In viewing mode");
                         populateTripsField(trip);
                         setViewOnlyMode();
                         break;
@@ -136,6 +141,17 @@ public class AddTripActivity extends Activity implements View.OnClickListener, G
         }
 
         invalidateOptionsMenu();
+    }
+
+    private void setEditMode() {
+        // enable the editing
+        ActivityHelper.setReadOnly(etName, false);
+        ActivityHelper.setReadOnly(btnDate, false);
+        ActivityHelper.setReadOnly(etWeather, false);
+        ActivityHelper.setReadOnly(etWaterTemp, false);
+        ActivityHelper.setReadOnly(etLevel, false);
+        ActivityHelper.setReadOnly(tvLocationCoords, false);
+        ActivityHelper.setReadOnly(etNotes, false);
     }
 
 
@@ -247,7 +263,19 @@ public class AddTripActivity extends Activity implements View.OnClickListener, G
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         if (isViewing) {
-            menu.getItem(0).setEnabled(false).setVisible(false);
+            menu.clear();
+            menu.add(0, SHARE_MENU_ID, Menu.NONE, R.string.shareTrip).setIcon(R.drawable
+                    .ic_share_white_24dp).setShowAsAction(MenuItem
+                    .SHOW_AS_ACTION_ALWAYS|MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+            menu.add(0, EDIT_MENU_ID, Menu.NONE, R.string.editTrip).setIcon(R.drawable
+                    .ic_mode_edit_white_24dp).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS|MenuItem
+                    .SHOW_AS_ACTION_WITH_TEXT);
+        }
+        else if (isEditing) {
+            menu.clear();
+            menu.add(0, R.id.menu_opt_save_trip, Menu.NONE, R.string.saveTask).setIcon(R.drawable
+                    .ic_save_white_24dp).setShowAsAction(MenuItem
+                    .SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
         }
         return super.onPrepareOptionsMenu(menu);
     }
@@ -256,8 +284,11 @@ public class AddTripActivity extends Activity implements View.OnClickListener, G
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_opt_save_trip:
+                Trip trip = new Trip();
+                if (isEditing && this.trip != null) {
+                    trip = this.trip; // we are updating fields not creating a new save
+                }
                 if (validateData()) {
-                    Trip trip = new Trip();
                     trip.setName(etName.getText().toString());
                     // Handle the text date
                     SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT, Locale.US);
@@ -296,6 +327,15 @@ public class AddTripActivity extends Activity implements View.OnClickListener, G
                     goToHomeActivity();
                 }
                 break;
+            case SHARE_MENU_ID:
+                emailTrip(this.trip);
+                break;
+            case EDIT_MENU_ID:
+                isViewing = false;
+                isEditing = true;
+                setEditMode();
+                invalidateOptionsMenu();
+                break;
             default:
                 break;
         }
@@ -303,6 +343,19 @@ public class AddTripActivity extends Activity implements View.OnClickListener, G
         return super.onOptionsItemSelected(item);
     }
 
+    // email the trip
+    // TODO: Build proper message to include Trip details
+    private void emailTrip(Trip trip) {
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setData(Uri.parse("mailto:"));
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_EMAIL, new String[]{""});
+        intent.putExtra(Intent.EXTRA_CC, new String[]{""});
+        intent.putExtra(Intent.EXTRA_SUBJECT, trip.getName());
+        intent.putExtra(Intent.EXTRA_TEXT, trip.getNotes());
+        startActivity(intent);
+        finish();
+    }
 
     @Override
     public void onClick(View v) {
