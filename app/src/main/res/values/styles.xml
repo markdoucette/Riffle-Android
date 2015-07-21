@@ -4,10 +4,16 @@
     <style name="AppTheme" parent="android:Theme.Holo.Light">
         <!-- Customize your theme here. -->
         <item name="android:actionBarStyle">@style/actionBarBlue</item>
+        <item name="android:textColorPrimary">@color/primary_text_white</item>
+        <item name="android:buttonStyle">@style/buttonStyle</item>
     </style>
 
     <style name="actionBarBlue" parent="android:Widget.Holo.ActionBar">
         <item name="android:background">@color/actionBarBlue</item>
     </style>
 
+    <style name="buttonStyle">
+        <item name="android:background">@color/homeActivityBtnBlue</item>
+        <item name="android:gravity">center</item>
+    </style>
 </resources>
