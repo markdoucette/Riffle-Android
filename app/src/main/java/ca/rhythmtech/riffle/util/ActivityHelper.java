@@ -4,6 +4,7 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 /**
@@ -70,4 +71,8 @@ public class ActivityHelper {
         view.setCursorVisible(!readOnly);
     }
 
+    /* with some help from Stackoverflow */
+    public static void setReadOnly(final ImageButton view, final boolean readOnly) {
+        view.setEnabled(!readOnly);
+    }
 }

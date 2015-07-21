@@ -2,6 +2,7 @@ package ca.rhythmtech.riffle.activity;
 
 import android.app.Activity;
 import android.app.DatePickerDialog;
+import android.app.FragmentManager;
 import android.content.Intent;
 import android.location.Location;
 import android.net.Uri;
@@ -12,11 +13,16 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.*;
 import ca.rhythmtech.riffle.R;
+import ca.rhythmtech.riffle.fragment.DeleteTripAlertFragment;
+import ca.rhythmtech.riffle.fragment.LocationAlertFragment;
 import ca.rhythmtech.riffle.model.Trip;
 import ca.rhythmtech.riffle.util.ActivityHelper;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlacePicker;
+import com.google.android.gms.maps.model.LatLng;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseQuery;
 
@@ -27,13 +33,18 @@ import java.util.Date;
 import java.util.Locale;
 
 
-public class AddTripActivity extends Activity implements View.OnClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class AddTripActivity extends Activity implements LocationAlertFragment
+        .OnCurrentLocationListener, View.OnClickListener, GoogleApiClient
+        .ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     public static final String ERROR_NAME = "Please enter a title for the Trip";
     public static final String DATE_FORMAT = "yyyy/MM/dd";
     public static final String TAG = "AddTripActivity";
-    public static final String TRIP_ACTION_EDIT = "edit";
     private static final int SHARE_MENU_ID = Menu.FIRST + 1;
     private static final int EDIT_MENU_ID = Menu.FIRST + 2;
+    private static final int DELETE_MENU_ID = Menu.FIRST + 3;
+    public static final String DELETE_TRIP_ALERT_FRAGMENT = "DeleteTripAlertFragment";
+    public static final String NO_TRIP_ERROR = "No Trip to delete";
+
     private EditText etName;
     private Button btnDate;
     private EditText etWeather;
@@ -48,9 +59,12 @@ public class AddTripActivity extends Activity implements View.OnClickListener, G
     private GoogleApiClient mGoogleApiClient;
 
     private Location lastLocation;
+    private Location chosenLocation;
     private Trip trip;
     private boolean isEditing = false; // user is editing the Trip ?
     private boolean isViewing = false; // user is just viewing the Trip ?
+    private boolean isUsingCurrentLocation = true;
+    private FragmentManager fragmentManager = getFragmentManager();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,6 +144,7 @@ public class AddTripActivity extends Activity implements View.OnClickListener, G
         ActivityHelper.setReadOnly(etLevel, true);
         ActivityHelper.setReadOnly(tvLocationCoords, true);
         ActivityHelper.setReadOnly(etNotes, true);
+        ActivityHelper.setReadOnly(ebLocation, true);
 
         // address the save button
         if (miSaveButton == null) {
@@ -152,6 +167,8 @@ public class AddTripActivity extends Activity implements View.OnClickListener, G
         ActivityHelper.setReadOnly(etLevel, false);
         ActivityHelper.setReadOnly(tvLocationCoords, false);
         ActivityHelper.setReadOnly(etNotes, false);
+        ActivityHelper.setReadOnly(ebLocation, false);
+
     }
 
 
@@ -177,6 +194,24 @@ public class AddTripActivity extends Activity implements View.OnClickListener, G
                 etNotes.setText(trip.getNotes());
             }
         }
+    }
+
+    // Use our custom Alert fragment to confirm delete and kill the Task if required.
+    private void showDeleteDialog() {
+        if (trip != null) {
+            DeleteTripAlertFragment fragment = DeleteTripAlertFragment.newInstance(trip.getObjectId());
+            fragment.show(fragmentManager, DELETE_TRIP_ALERT_FRAGMENT);
+        }
+        else {
+            Toast.makeText(AddTripActivity.this, NO_TRIP_ERROR, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    // User our custom Alert fragment to query the user if they want to use the current location
+    // or to get it from Google Maps
+    private void showLocationDialog(double latitude, double longitude) {
+        LocationAlertFragment fragment = LocationAlertFragment.newInstance(latitude, longitude);
+        fragment.show(fragmentManager, LocationAlertFragment.TAG);
     }
 
     /*
@@ -266,9 +301,9 @@ public class AddTripActivity extends Activity implements View.OnClickListener, G
             menu.clear();
             menu.add(0, SHARE_MENU_ID, Menu.NONE, R.string.shareTrip).setIcon(R.drawable
                     .ic_share_white_24dp).setShowAsAction(MenuItem
-                    .SHOW_AS_ACTION_ALWAYS|MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+                    .SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
             menu.add(0, EDIT_MENU_ID, Menu.NONE, R.string.editTrip).setIcon(R.drawable
-                    .ic_mode_edit_white_24dp).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS|MenuItem
+                    .ic_mode_edit_white_24dp).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem
                     .SHOW_AS_ACTION_WITH_TEXT);
         }
         else if (isEditing) {
@@ -276,6 +311,9 @@ public class AddTripActivity extends Activity implements View.OnClickListener, G
             menu.add(0, R.id.menu_opt_save_trip, Menu.NONE, R.string.saveTask).setIcon(R.drawable
                     .ic_save_white_24dp).setShowAsAction(MenuItem
                     .SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+            menu.add(0, DELETE_MENU_ID, Menu.NONE, "Delete")
+                    .setIcon(R.drawable.ic_remove_circle_outline_white_24dp)
+                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
         }
         return super.onPrepareOptionsMenu(menu);
     }
@@ -312,9 +350,14 @@ public class AddTripActivity extends Activity implements View.OnClickListener, G
                         trip.setLevelMeters(Double.valueOf(etLevel.getText().toString()));
                     }
 
-                    if (lastLocation != null) {
+                    if (lastLocation != null && isUsingCurrentLocation) {
                         ParseGeoPoint location = new ParseGeoPoint(lastLocation.getLatitude(),
                                 lastLocation.getLongitude());
+                        trip.setLocation(location);
+                    }
+                    else if (chosenLocation != null && !isUsingCurrentLocation) {
+                        ParseGeoPoint location = new ParseGeoPoint(chosenLocation.getLatitude(),
+                                chosenLocation.getLongitude());
                         trip.setLocation(location);
                     }
 
@@ -335,6 +378,9 @@ public class AddTripActivity extends Activity implements View.OnClickListener, G
                 isEditing = true;
                 setEditMode();
                 invalidateOptionsMenu();
+                break;
+            case DELETE_MENU_ID:
+                showDeleteDialog();
                 break;
             default:
                 break;
@@ -368,12 +414,35 @@ public class AddTripActivity extends Activity implements View.OnClickListener, G
                 if (lastLocation != null) {
                     Log.d(TAG, String.format("Latitude: %f, Longitude: %f",
                             lastLocation.getLatitude(), lastLocation.getLongitude()));
-                    tvLocationCoords.setText(String.format("Lat: %f, Long: %f",
-                            lastLocation.getLatitude(), lastLocation.getLongitude()));
+
+                    showLocationDialog(lastLocation.getLatitude(), lastLocation.getLongitude());
+                }
+                else {
+                    showLocationDialog(0.0, 0.0);
                 }
                 break;
             default:
                 break;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == LocationAlertFragment.PLACE_PICKER_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                Place place = PlacePicker.getPlace(data, this);
+                LatLng latLng = place.getLatLng();
+                if (latLng != null) {
+                    chosenLocation = new Location("");
+                    chosenLocation.setLatitude(latLng.latitude);
+                    chosenLocation.setLongitude(latLng.longitude);
+                    isUsingCurrentLocation = false;
+                }
+                Log.d(TAG, String.format("Latitude: %f, Longitude: %f",
+                        latLng.latitude, latLng.longitude));
+                tvLocationCoords.setText(String.format("Lat: %f, Long: %f",
+                        latLng.latitude, latLng.longitude));
+            }
         }
     }
 
@@ -392,4 +461,14 @@ public class AddTripActivity extends Activity implements View.OnClickListener, G
         Log.d(TAG, "Location Connection failed: " + connectionResult.toString());
 
     }
+
+    @Override
+    public void useCurrentLocation() { // user has chosen to use the current location
+        isUsingCurrentLocation = true;
+        if (lastLocation != null) {
+            tvLocationCoords.setText(String.format("Lat: %f, Long: %f",
+                    lastLocation.getLatitude(), lastLocation.getLongitude()));
+        }
+    }
+
 }

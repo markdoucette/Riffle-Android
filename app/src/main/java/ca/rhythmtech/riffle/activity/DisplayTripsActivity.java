@@ -9,6 +9,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 import ca.rhythmtech.riffle.R;
 import ca.rhythmtech.riffle.adapter.TripsViewAdapter;
@@ -16,6 +17,8 @@ import ca.rhythmtech.riffle.model.Trip;
 import ca.rhythmtech.riffle.util.ActivityHelper;
 import com.parse.ParseQuery;
 import com.parse.ParseQueryAdapter;
+
+import java.util.List;
 
 public class DisplayTripsActivity extends Activity implements AdapterView.OnItemClickListener {
     public static final String TRIP_ACTION_VIEW = "view";
@@ -27,6 +30,7 @@ public class DisplayTripsActivity extends Activity implements AdapterView.OnItem
 
     private TripsViewAdapter adapter;
     private ListView lvTrips;
+    private ProgressBar pgWaiting;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,12 +53,24 @@ public class DisplayTripsActivity extends Activity implements AdapterView.OnItem
         lvTrips.setOnItemClickListener(this);
         // initialize the adapter and set to the ListView
         adapter = new TripsViewAdapter(this, qf);
+        adapter.addOnQueryLoadListener(new ParseQueryAdapter.OnQueryLoadListener<Trip>() {
+            @Override
+            public void onLoading() {
+
+            }
+
+            @Override
+            public void onLoaded(List<Trip> list, Exception e) {
+                pgWaiting.setVisibility(View.GONE); // get rid of progress bar once we have data
+            }
+        });
         lvTrips.setAdapter(adapter);
     }
 
     // Round up all of our required views
     private void initializeViews() {
         lvTrips = (ListView) findViewById(R.id.act_display_lv_trips);
+        pgWaiting = (ProgressBar) findViewById(R.id.progressBar);
         ActivityHelper.setActionBarTitle(DisplayTripsActivity.this, "");
     }
 

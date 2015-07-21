@@ -20,4 +20,8 @@
     <string name="act_displaytrips_tv_date"/>
     <string name="shareTrip">Share</string>
     <string name="editTrip">Edit Trip</string>
+    <string name="dialog_location_maps">Maps</string>
+    <string name="dialog_location_current">Current</string>
+
+    <string name="google_api_key">AIzaSyApZaY5aLJXTdOK7jPFl69OlNMZHeNgHic</string>
 </resources>
