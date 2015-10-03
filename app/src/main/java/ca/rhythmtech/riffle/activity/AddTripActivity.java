@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -42,6 +43,7 @@ public class AddTripActivity extends Activity implements LocationAlertFragment
     private static final int SHARE_MENU_ID = Menu.FIRST + 1;
     private static final int EDIT_MENU_ID = Menu.FIRST + 2;
     private static final int DELETE_MENU_ID = Menu.FIRST + 3;
+    private static final int TAKE_PHOTO_REQUEST = 10;
     public static final String DELETE_TRIP_ALERT_FRAGMENT = "DeleteTripAlertFragment";
     public static final String NO_TRIP_ERROR = "No Trip to delete";
 
@@ -263,6 +265,14 @@ public class AddTripActivity extends Activity implements LocationAlertFragment
         finish();
     }
 
+    private void goToTakePhotoActivity() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(takePictureIntent, TAKE_PHOTO_REQUEST);
+        }
+    }
+
+
     /*
     Using the Google Api's for Location Services
      */
@@ -308,6 +318,9 @@ public class AddTripActivity extends Activity implements LocationAlertFragment
         }
         else if (isEditing) {
             menu.clear();
+            menu.add(0, R.id.menu_opt_photo, Menu.NONE, R.string.menu_take_photo).setIcon(R.drawable
+                    .ic_camera_alt_white_24dp).setShowAsAction(MenuItem
+                    .SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
             menu.add(0, R.id.menu_opt_save_trip, Menu.NONE, R.string.saveTask).setIcon(R.drawable
                     .ic_save_white_24dp).setShowAsAction(MenuItem
                     .SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
@@ -381,6 +394,9 @@ public class AddTripActivity extends Activity implements LocationAlertFragment
                 break;
             case DELETE_MENU_ID:
                 showDeleteDialog();
+                break;
+            case R.id.menu_opt_photo:
+                goToTakePhotoActivity();
                 break;
             default:
                 break;

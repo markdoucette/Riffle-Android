@@ -4,8 +4,14 @@
       tools:context="ca.rhythmtech.riffle.activity.AddTripActivity">
           <item
             android:id="@+id/menu_opt_save_trip"
-            android:orderInCategory="80"
+            android:orderInCategory="90"
             android:icon="@drawable/ic_save_white_24dp"
             android:title="@string/saveTask"
+            android:showAsAction="always|withText"/>
+    <item
+            android:id="@+id/menu_opt_photo"
+            android:orderInCategory="80"
+            android:icon="@drawable/ic_camera_alt_white_24dp"
+            android:title="@string/menu_take_photo"
             android:showAsAction="always|withText"/>
 </menu>

@@ -16,4 +16,8 @@
         <item name="android:background">@color/homeActivityBtnBlue</item>
         <item name="android:gravity">center</item>
     </style>
+    <!-- TwoWayView library for ListView layouts -->
+    <style name="TwoWayView">
+        <item name="android:orientation">horizontal</item>
+    </style>
 </resources>

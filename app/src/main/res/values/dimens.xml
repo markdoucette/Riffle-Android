@@ -8,4 +8,6 @@
     <dimen name="dim_listview_spacer_padding">5dp</dimen>
     <dimen name="dim_lv_large_text">25sp</dimen>
     <dimen name="dim_lv_small_text">12sp</dimen>
+    <dimen name="photo_height">120dp</dimen>
+    <dimen name="photo_width">120dp</dimen>
 </resources>
