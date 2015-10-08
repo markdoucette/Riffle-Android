@@ -111,6 +111,7 @@
             <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:id="@+id/act_add_img_thumb"
                     android:src="@drawable/ic_collections_white_48dp"/>
             <org.lucasr.twowayview.TwoWayView
                     android:id="@+id/lvImages"

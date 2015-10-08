@@ -12,7 +12,7 @@ import android.widget.TextView;
  *
  * @author Mark Doucette
  */
-public class ActivityHelper {
+public final class ActivityHelper {
 
     /**
      * Set the action bar to stop displaying the application icon

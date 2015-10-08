@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.FragmentManager;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -26,9 +27,11 @@ import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.model.LatLng;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseQuery;
+import org.lucasr.twowayview.TwoWayView;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -57,6 +60,7 @@ public class AddTripActivity extends Activity implements LocationAlertFragment
     private View miSaveButton;
     private EditText etNotes;
     private DatePickerDialog datePickerDialog; // dialog for choosing a date
+    private TwoWayView lvImages;
     private SimpleDateFormat dateFormat;
     private GoogleApiClient mGoogleApiClient;
 
@@ -67,6 +71,9 @@ public class AddTripActivity extends Activity implements LocationAlertFragment
     private boolean isViewing = false; // user is just viewing the Trip ?
     private boolean isUsingCurrentLocation = true;
     private FragmentManager fragmentManager = getFragmentManager();
+
+    private ArrayList<ImageView> imageThumbs = new ArrayList<>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,6 +107,7 @@ public class AddTripActivity extends Activity implements LocationAlertFragment
         // initialize the date button text to today's date for new Trip
         btnDate.setText(getTodaysDate());
         miSaveButton = findViewById(R.id.menu_opt_save_trip);
+        lvImages= (TwoWayView) findViewById(R.id.lvImages);
 
         // get rid of the title
         ActivityHelper.setActionBarTitle(AddTripActivity.this, "");
@@ -265,6 +273,10 @@ public class AddTripActivity extends Activity implements LocationAlertFragment
         finish();
     }
 
+    /*
+    User has presed the Take Photo button so we send them to the built in photo taking
+    app.
+     */
     private void goToTakePhotoActivity() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
@@ -459,6 +471,20 @@ public class AddTripActivity extends Activity implements LocationAlertFragment
                 tvLocationCoords.setText(String.format("Lat: %f, Long: %f",
                         latLng.latitude, latLng.longitude));
             }
+        }
+        else if (requestCode == TAKE_PHOTO_REQUEST && resultCode == RESULT_OK) {
+            Bundle extras = data.getExtras();
+            Bitmap bitmap = (Bitmap) extras.get("data");
+            if (bitmap != null) {
+                ImageView imageView = new ImageView(this);
+                imageView.setImageBitmap(bitmap);
+                imageThumbs.add(imageView);
+
+                ArrayAdapter<ImageView> arrayAdapter = new ArrayAdapter<>(this,R.layout.layout_image_list_item, R.id.imageView, imageThumbs);
+                lvImages.setAdapter(arrayAdapter);
+                Log.i(TAG, bitmap.toString());
+            }
+
         }
     }
 
