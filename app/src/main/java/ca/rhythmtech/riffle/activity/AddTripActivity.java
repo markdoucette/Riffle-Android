@@ -480,7 +480,8 @@ public class AddTripActivity extends Activity implements LocationAlertFragment
                 imageView.setImageBitmap(bitmap);
                 imageThumbs.add(imageView);
 
-                ArrayAdapter<ImageView> arrayAdapter = new ArrayAdapter<>(this,R.layout.layout_image_list_item, R.id.imageView, imageThumbs);
+                String[] arr = {"one", "two", "three"};
+                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(this, R.layout.layout_image_list_item, R.id.act_add_tv_blank);
                 lvImages.setAdapter(arrayAdapter);
                 Log.i(TAG, bitmap.toString());
             }
